@@ -1,9 +1,14 @@
 const fs = require("fs");
+let lock = 15;
 
 function writeToFile(path, x){
     setInterval(function() {
-        fs.appendFileSync(path, Math.floor(Math.random())+"\r");
+        while(lock!=0){
+            fs.appendFile(path, Math.floor(Math.random())+"\r", ()=>{});
+            lock--;
+        }
+        
     }, x);
 }
 
-writeToFile("worker.json", 5);
+writeToFile(process.argv[2], process.argv[3]);0
