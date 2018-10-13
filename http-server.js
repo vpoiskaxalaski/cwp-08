@@ -6,18 +6,26 @@ const hostname = '127.0.0.1';
 const port = 3000;
 
 const handlers = {
-    '/sendNumber': sendNumber
+    '/sendNumber': sendNumber,
+    '/workers': getWorkers
 }
+
+let workerList;
 
 const server = http.createServer((req, res) => {
     console.log(req.url);
     console.log(req.body);
     const handler = getHandler(req.url);
-
+    let data;
     if(req.method == 'GET'){
         res.statusCode = 200;
-        res.setHeader("Content-Type", "text/html");
-        let data = fs.readFileSync(".\\public\\index.html");
+        if(req.url=='/workers'){
+            res.setHeader("Content-Type", "text/html");
+            data = fs.readFileSync(".\\public\\workers.html");
+        }else{
+            res.setHeader("Content-Type", "text/html");
+            data = fs.readFileSync(".\\public\\index.html");
+        }
         res.end(data);
     }else if(req.method == 'POST'){
         
@@ -60,7 +68,26 @@ function sendNumber(req, res, payload, cb) {
         console.log('Connection closed');
     });
 }
-  
+ 
+function getWorkers(req, res, payload, cb) {
+
+    const client = new net.Socket();
+
+    client.connect(8124, function () {
+        client.write('startedWorkers');
+    });
+
+    client.on('data', (data) => {
+        workerList = JSON.parse(data);
+        console.log(workerList);       
+        cb(null, JSON.stringify(workerList));
+    });
+
+    client.on('close', function () {
+        console.log('Connection closed');
+    });
+}
+
   function notFound(req, res, payload, cb) {
     cb({ code: 404, message: 'Not found'});
   }

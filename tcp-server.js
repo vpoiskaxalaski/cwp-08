@@ -15,6 +15,12 @@ const server = net.createServer((client) => {
         let clientID = Date.now();
         let pathToClient = clientID + ".json";
         let myChildProcess = child_process.spawn("node", [ "worker.js", pathToClient, data]);
+        workers.push(myChildProcess.pid);
+
+        if(data == 'startedWorkers'){
+            let workersJson = JSON.stringify(workers);
+            client.write(workersJson);
+        }
     });
 });
 

@@ -4,36 +4,27 @@
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     </head>
     <body>
-        <div>
-            <label>
-                <h3>Enter the data</h3>
-            </label>
-        </div>
-        <div>
-            <textarea id="number"></textarea>
-        </div>
-        <div>
-            <button onclick="SendData()">Send</button>
+        <div id="workers">
         </div>
         <script>
-            function SendData(){
+            $(document).ready(function(){
                 
-	        const url = "http://127.0.0.1:3000/sendNumber";
+	        const url = "http://127.0.0.1:3000/workers";
 	        const xhr = new XMLHttpRequest();
 	        xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-Type", "application/json");
-            let data = $("#number").val();
             let obj = {};
-            obj.number = data;
+            obj.msg = "wait";
             let dataJson = JSON.stringify(obj);
 	        xhr.send(dataJson); 
-
+            
 	        xhr.onreadystatechange = function () {
 		    if (xhr.readyState === 4 && xhr.status === 200) {
-               
+                let response = JSON.parse(xhr.responseText);
+                $('#workers').append(response);
             }
         }
-        }
+        });
     </script>
     </body>
 </html>
