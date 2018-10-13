@@ -10,11 +10,10 @@ const handlers = {
     '/workers': getWorkers
 }
 
-let workerList;
+let workerList = [];
 
 const server = http.createServer((req, res) => {
-    console.log(req.url);
-    console.log(req.body);
+
     const handler = getHandler(req.url);
     let data;
     if(req.method == 'GET'){
@@ -37,7 +36,7 @@ const server = http.createServer((req, res) => {
                 res.end( JSON.stringify(err) );
                 return;
               }
-              console.log('!err');
+
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
               res.end( JSON.stringify(result) );
@@ -56,31 +55,51 @@ function getHandler(url) {
     return handlers[url] || notFound;
 }
 
-function sendNumber(req, res, payload, cb) {
 
+function sendNumber(req, res, payload, cb) {
+    console.log('sendNumber');
     const client = new net.Socket();
 
     client.connect(8124, function () {
-        client.write(payload.number);
+        client.write('start'+ payload.number);
+
     });
 
     client.on('close', function () {
+        workerList = [];
         console.log('Connection closed');
     });
+
+   cb(null,{"msg":"ok"});
 }
  
 function getWorkers(req, res, payload, cb) {
-
+    console.log('getWorkers');
     const client = new net.Socket();
 
     client.connect(8124, function () {
-        client.write('startedWorkers');
+        client.write('getWorkers');
     });
 
     client.on('data', (data) => {
-        workerList = JSON.parse(data);
-        console.log(workerList);       
-        cb(null, JSON.stringify(workerList));
+        
+        if(data.indexOf('workers')==0){
+            let d = data.slice(7,data.length);
+            let d1 = JSON.parse(d);
+            workerList= Array.from(d1.process);
+            cb(null, JSON.stringify(workerList));   
+        }if(payload.msg == "stop"){
+            console.log('ask to kill');
+            client.write('kill'+ payload.id);
+        }if(data.indexOf('done')==0){ 
+            console.log('done');
+            let aswr = (data.toString()).slice(4,data.length);
+            console.log(aswr);
+            let obj = JSON.parse(aswr);  
+            console.log(obj);              
+            workerList = obj;
+        }
+          
     });
 
     client.on('close', function () {

@@ -4,12 +4,50 @@
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     </head>
     <body>
+        <div>
+            <label>
+                <h3>Stop worker</h3>
+            </label>
+        </div>
+        <div>
+            <textarea id="workerId"></textarea>
+        </div>
+        <button onclick="StopWorker()">Stop</button>
+        <button onclick="UpdateWorker()">Update</button>
         <div id="workers">
         </div>
         <script>
             $(document).ready(function(){
-                
-	        const url = "http://127.0.0.1:3000/workers";
+                UpdateWorker();
+        });
+
+        function StopWorker(){
+            
+            let id = $('#workerId').val();
+            const url = "http://127.0.0.1:3000/workers";
+	        const xhr = new XMLHttpRequest();
+	        xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            let obj = {};
+            obj.msg = "stop";
+            if(id!==""){
+            obj.id = id;
+            let dataJson = JSON.stringify(obj);
+            alert(dataJson);
+	        xhr.send(dataJson);
+            }
+            
+	        xhr.onreadystatechange = function () {
+		    if (xhr.readyState === 4 && xhr.status === 200) {
+                let response = JSON.parse(xhr.responseText);
+               $('#workers').text(response);
+            }
+        }
+        }
+
+         function UpdateWorker(){
+            
+            const url = "http://127.0.0.1:3000/workers";
 	        const xhr = new XMLHttpRequest();
 	        xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-Type", "application/json");
@@ -21,10 +59,10 @@
 	        xhr.onreadystatechange = function () {
 		    if (xhr.readyState === 4 && xhr.status === 200) {
                 let response = JSON.parse(xhr.responseText);
-                $('#workers').append(response);
+               $('#workers').text(response);
             }
         }
-        });
+        }
     </script>
     </body>
 </html>
