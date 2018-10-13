@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <title>Page</title>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body>
+        <div>
+            <label>
+                <h3>Enter the data</h3>
+            </label>
+        </div>
+        <div>
+            <textarea id="number"></textarea>
+        </div>
+        <div>
+            <button onclick="SendData()">Send</button>
+        </div>
+        <script>
+            function SendData(){
+                
+	        const url = "http://127.0.0.1:3000/sendNumber";
+	        const xhr = new XMLHttpRequest();
+	        xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            let data = $("#number").val();
+            let dataJson = JSON.stringify(obj);
+            alert(dataJson);
+	        xhr.send(dataJson); 
+
+	        xhr.onreadystatechange = function () {
+		    if (xhr.readyState === 4 && xhr.status === 200) {
+
+            }
+        }
+        }
+    </script>
+    </body>
+</html>
