@@ -6,8 +6,9 @@ const hostname = '127.0.0.1';
 const port = 3000;
 
 const handlers = {
-    '/sendNumber': sendNumber,
-    '/workers': getWorkers
+    '/workers/add': addWorker,
+    '/workers': getWorkers,
+    '/workers/remove': removeWorker
 }
 
 let workerList = [];
@@ -21,9 +22,13 @@ const server = http.createServer((req, res) => {
         if(req.url=='/workers'){
             res.setHeader("Content-Type", "text/html");
             data = fs.readFileSync(".\\public\\workers.html");
-        }else{
+        }else if (req.url=='/workers/add'){
+            console.log('add');
             res.setHeader("Content-Type", "text/html");
             data = fs.readFileSync(".\\public\\index.html");
+        } else if (req.url=='/workers/remove'){
+            res.setHeader("Content-Type", "text/html");
+            data = fs.readFileSync(".\\public\\workers1.html");
         }
         res.end(data);
     }else if(req.method == 'POST'){
@@ -56,24 +61,35 @@ function getHandler(url) {
 }
 
 
-function sendNumber(req, res, payload, cb) {
-    console.log('sendNumber');
+function addWorker(req, res, payload, cb) {
+    console.log('addWorker');
     const client = new net.Socket();
 
     client.connect(8124, function () {
+        console.log('write start');
         client.write('start'+ payload.number);
 
     });
 
+    client.on('data', function (data) {
+        let result;
+        if((data.toString()).indexOf('create')==0){
+            result = (data.toString()).slice(6, data.length);          
+        }
+        workerList.push(result);
+        console.log(result.toString());
+        cb(null, result);
+    });
+
     client.on('close', function () {
-        workerList = [];
         console.log('Connection closed');
     });
 
-   cb(null,{"msg":"ok"});
+   
 }
  
 function getWorkers(req, res, payload, cb) {
+    
     console.log('getWorkers');
     const client = new net.Socket();
 
@@ -82,24 +98,36 @@ function getWorkers(req, res, payload, cb) {
     });
 
     client.on('data', (data) => {
-        
+        let  result;
         if(data.indexOf('workers')==0){
-            let d = data.slice(7,data.length);
-            let d1 = JSON.parse(d);
-            workerList= Array.from(d1.process);
-            cb(null, JSON.stringify(workerList));   
-        }if(payload.msg == "stop"){
-            console.log('ask to kill');
-            client.write('kill'+ payload.id);
-        }if(data.indexOf('done')==0){ 
-            console.log('done');
-            let aswr = (data.toString()).slice(4,data.length);
-            console.log(aswr);
-            let obj = JSON.parse(aswr);  
-            console.log(obj);              
-            workerList = obj;
+            result = (data.toString()).slice(7,data.length);    
+            console.log(result.toString());         
         }
-          
+        cb(null, result);  
+    });
+
+    client.on('close', function () {
+        console.log('Connection closed');
+    });
+    
+  // cb(null, workerList);  
+}
+
+function removeWorker(req, res, payload, cb) {
+    console.log('removeWorkers');
+    const client = new net.Socket();
+
+    client.connect(8124, function () {
+        client.write('kill'+ payload.id);
+    });
+
+    client.on('data', (data) => {
+        let result;
+        if(data.indexOf('done')==0){ 
+          result =JSON.parse((data.toString()).slice(4,data.length));
+        }
+        console.log(result);
+        cb(null,result);  
     });
 
     client.on('close', function () {

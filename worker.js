@@ -1,13 +1,12 @@
 const fs = require("fs");
-let lock = 150;
+let lock = 15;
 
 function writeToFile(path, x){
     setInterval(function() {
-        while(lock!==0){
-           // fs.appendFile(path, Math.floor(Math.random()*15+12)+"\r", ()=>{});
+        if(lock!==0){
+            fs.appendFile(path, Math.floor(Math.random()*15+12)+"\r", ()=>{});
             lock--;
-        }
-        
+        }        
     }, x);
 }
 

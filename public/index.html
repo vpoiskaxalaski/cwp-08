@@ -18,7 +18,7 @@
         <script>
             function SendData(){
                 
-	        const url = "http://127.0.0.1:3000/sendNumber";
+	        const url = "http://127.0.0.1:3000/workers/add";
 	        const xhr = new XMLHttpRequest();
 	        xhr.open("POST", url, true);
             xhr.setRequestHeader("Content-Type", "application/json");
@@ -30,10 +30,9 @@
 
 	        xhr.onreadystatechange = function () {
 		    if (xhr.readyState === 4 && xhr.status === 200) {
-               let answr = JSON.parse(xhr.responseText);
-               if(answr.msg == "ok"){
-                   alert("We get your number");
-               }
+              let answr = JSON.parse(xhr.responseText);
+               alert(answr);
+             
             }
             }
         }
