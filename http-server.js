@@ -76,9 +76,13 @@ function addWorker(req, res, payload, cb) {
         if((data.toString()).indexOf('create')==0){
             result = (data.toString()).slice(6, data.length);          
         }
-        workerList.push(result);
-        console.log(result.toString());
-        cb(null, result);
+        let w= JSON.parse(result);
+        let worker = {}
+        worker.id=w.id;
+        worker.startedOn = w.startedOn;
+        worker.pid = w.pid;
+
+        cb(null, JSON.stringify(worker));
     });
 
     client.on('close', function () {
@@ -101,9 +105,11 @@ function getWorkers(req, res, payload, cb) {
         let  result;
         if(data.indexOf('workers')==0){
             result = (data.toString()).slice(7,data.length);    
-            console.log(result.toString());         
+                   
         }
-        cb(null, result);  
+        
+        let workers = Answer(JSON.parse(result));
+        cb(null, JSON.stringify(workers));  
     });
 
     client.on('close', function () {
@@ -126,8 +132,14 @@ function removeWorker(req, res, payload, cb) {
         if(data.indexOf('done')==0){ 
           result =JSON.parse((data.toString()).slice(4,data.length));
         }
-        console.log(result);
-        cb(null,result);  
+        let w= result;
+        let worker = {}
+        worker.id=w.id;
+        worker.startedOn = w.startedOn;
+        worker.pid = w.pid;
+        worker.numbers = (fs.readFileSync(w.numbers)).toString();
+
+        cb(null, JSON.stringify(worker));  
     });
 
     client.on('close', function () {
@@ -153,3 +165,24 @@ function removeWorker(req, res, payload, cb) {
     });
   }
 
+function Answer(w){
+
+    let workers = Array.from(w);
+    let newWorkers = [];
+
+    workers.forEach(element => {
+        let worker = {}
+        worker.id=element.id;
+        worker.startedOn = element.startedOn;
+        worker.pid = element.pid;
+        worker.numbers = (fs.readFileSync(element.numbers)).toString();
+        newWorkers.push(worker);
+    });
+    return newWorkers;
+}
+
+function Answ(w){
+    
+    worker.numbers = (fs.readFileSync(w.numbers)).toString();
+    return worker;
+}

@@ -4,7 +4,7 @@ let lock = 15;
 function writeToFile(path, x){
     setInterval(function() {
         if(lock!==0){
-            fs.appendFile(path, Math.floor(Math.random()*15+12)+"\r", ()=>{});
+            fs.appendFile(path, Math.floor(Math.random()*15+12)+",  ", ()=>{});
             lock--;
         }        
     }, x);

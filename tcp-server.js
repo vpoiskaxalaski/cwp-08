@@ -30,6 +30,7 @@ const server = net.createServer((client) => {
             worker.pid = myChildProcess.pid;
             pworkers.push(myChildProcess);                       
             workers.push(worker);
+            
             client.write('create' + JSON.stringify(worker) );
         }else if(data == 'getWorkers'){           
             //console.log(workers);  
