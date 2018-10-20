@@ -167,16 +167,18 @@ function removeWorker(req, res, payload, cb) {
 
 function Answer(w){
 
-    let workers = Array.from(w);
     let newWorkers = [];
-
-    workers.forEach(element => {
-        let worker = {}
-        worker.id=element.id;
-        worker.startedOn = element.startedOn;
-        worker.pid = element.pid;
-        worker.numbers = (fs.readFileSync(element.numbers)).toString();
-        newWorkers.push(worker);
+   console.log(w);
+    Array.from(w).forEach(element => {
+        if(element!==null){
+            let worker = {}
+            worker.id = element.id;
+            worker.startedOn = element.startedOn;
+            worker.pid = element.pid;
+            worker.numbers = (fs.readFileSync(element.numbers)).toString();
+            newWorkers.push(worker);
+        }
+       
     });
     return newWorkers;
 }
